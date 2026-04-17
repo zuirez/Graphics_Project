@@ -1,10 +1,19 @@
 #include<windows.h>
 #include <GL/glut.h>
 
+void testFunction() {
+   // function details
+}
+
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
 
+<<<<<<< HEAD
 // testing
+=======
+    testFunction();
+>>>>>>> 452576f (testFunction added)
 
     glFlush();
 }
