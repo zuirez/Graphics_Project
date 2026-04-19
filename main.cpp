@@ -23,6 +23,25 @@ void circleFunc(float x, float y, float r, int R, int G, int B)
     glEnd ();
 }
 
+// Function for making Tent - Nijhum
+void tentFunc() {
+    // shade 1
+    glColor3ub(139, 69, 19);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.72f, -0.45f);
+    glVertex2f(-0.89f, -0.89f);
+    glVertex2f(-0.6f, -0.89f);
+    glVertex2f(-0.46f, -0.38f);
+    glEnd();
+
+    // shade 2
+    glColor3ub(159, 69, 19);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.46f, -0.38f);
+    glVertex2f(-0.6f, -0.89f);
+    glVertex2f(-0.48f, -0.89f);
+    glEnd();
+}
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -35,6 +54,9 @@ void display() {
     circleFunc(-0.3f, 0.8f, 0.1f, 255, 255, 255);
     circleFunc(-0.4f, 0.8f, 0.13f, 255, 255, 255);
     circleFunc(-0.6f, 0.8f, 0.05f, 255, 255, 255);
+
+    // Tent - Nijhum
+    tentFunc();
 
     glFlush();
 }
