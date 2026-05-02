@@ -6,23 +6,41 @@
 #define PI 3.141516
 float aspect = 1920.0f / 1080.0f;
 
-// Modes: 0=Day, 1=Monsoon, 2=Night, 3=Winter, 4=Evening
+/*
+Modes:
+0 = Day (Nahin)
+1 = Monsoon (Rittik)
+2 = Night (Nijhum)
+3 = Winter (Wakil)
+4 = Evening (Rashed)
+*/
+
 int mode = 0;
 float particleY[200];
 float particleX[200];
 
-// Global variables
+// Global variables to track animations
 float cloudOffset = 0.0f;
 float fireTime = 0.0f;
 float windTime = 0.0f;
 float starX[150];
 float starY[150];
 
-// Day/Night Auto-Cycle Variables
-bool autoCycle = true;
-int cycleTimer = 0;
-int cycleIndex = 0;
-int dayNightCycle[] = {0, 4, 2};
+// Airplane and Bird Variables
+float planeX = -1.2f;
+float birdX = 1.5f;
+float birdTime = 0.0f;
+
+// Firefly Variables
+#define NUM_FIREFLIES 60
+float fireflyX[NUM_FIREFLIES];
+float fireflyY[NUM_FIREFLIES];
+float fireflyPhase[NUM_FIREFLIES];
+
+// Thunder Variables
+int lightningTimer = 150;
+int flashDuration = 0;
+
 
 GLubyte clamp(int value) {
     if (value > 255) return 255;
@@ -36,9 +54,9 @@ float clampF(float value) {
     return value;
 }
 
-// Seasonal Colors
+// Seasonal Color Palettes
 void colorLeaves(int mode) {
-    if      (mode == 0) glColor3ub(80,  160,  50);
+    if (mode == 0) glColor3ub(80,  160,  50);
     else if (mode == 1) glColor3ub(50,  120,  40);
     else if (mode == 2) glColor3ub(20,   50,  20);
     else if (mode == 3) glColor3ub(210, 230, 245);
@@ -46,7 +64,7 @@ void colorLeaves(int mode) {
 }
 
 void colorLeavesHighlight(int mode) {
-    if      (mode == 0) glColor3ub(110, 190,  70);
+    if (mode == 0) glColor3ub(110, 190,  70);
     else if (mode == 1) glColor3ub( 70, 150,  55);
     else if (mode == 2) glColor3ub( 30,  70,  30);
     else if (mode == 3) glColor3ub(235, 245, 255);
@@ -54,7 +72,7 @@ void colorLeavesHighlight(int mode) {
 }
 
 void colorBark(int mode) {
-    if      (mode == 0) glColor3ub(101,  67,  33);
+    if (mode == 0) glColor3ub(101,  67,  33);
     else if (mode == 1) glColor3ub( 80,  50,  25);
     else if (mode == 2) glColor3ub( 40,  25,  10);
     else if (mode == 3) glColor3ub(130,  90,  60);
@@ -63,60 +81,61 @@ void colorBark(int mode) {
 
 void colorGround(int mode, int shade) {
     if (mode == 0) {
-        if      (shade == 0) glColor3ub( 34, 139,  34);
+        if (shade == 0) glColor3ub( 34, 139,  34);
         else if (shade == 1) glColor3ub( 70, 170,  60);
-        else                 glColor3ub( 20, 110,  20);
+        else glColor3ub( 20, 110,  20);
     } else if (mode == 1) {
-        if      (shade == 0) glColor3ub( 25, 100,  25);
+        if (shade == 0) glColor3ub( 25, 100,  25);
         else if (shade == 1) glColor3ub( 45, 130,  40);
-        else                 glColor3ub( 15,  80,  15);
+        else glColor3ub( 15,  80,  15);
     } else if (mode == 2) {
-        if      (shade == 0) glColor3ub(  8,  35,   8);
+        if (shade == 0) glColor3ub(  8,  35,   8);
         else if (shade == 1) glColor3ub( 15,  50,  15);
-        else                 glColor3ub(  5,  25,   5);
+        else glColor3ub(  5,  25,   5);
     } else if (mode == 3) {
-        if      (shade == 0) glColor3ub(210, 225, 240);
+        if (shade == 0) glColor3ub(210, 225, 240);
         else if (shade == 1) glColor3ub(230, 240, 250);
-        else                 glColor3ub(190, 210, 230);
+        else glColor3ub(190, 210, 230);
     } else if (mode == 4) {
-        if      (shade == 0) glColor3ub(100,  90,  20);
+        if (shade == 0) glColor3ub(100,  90,  20);
         else if (shade == 1) glColor3ub(130, 110,  30);
-        else                 glColor3ub( 80,  70,  15);
+        else glColor3ub( 80,  70,  15);
     }
 }
 
 void colorHill(int mode, int shade) {
     if (mode == 0) {
-        if      (shade == 0) glColor3ub(120, 200, 120);
+        if (shade == 0) glColor3ub(120, 200, 120);
         else if (shade == 1) glColor3ub(150, 220, 150);
-        else                 glColor3ub(100, 180, 100);
+        else glColor3ub(100, 180, 100);
     } else if (mode == 1) {
-        if      (shade == 0) glColor3ub( 80, 140,  80);
+        if (shade == 0) glColor3ub( 80, 140,  80);
         else if (shade == 1) glColor3ub(100, 160, 100);
-        else                 glColor3ub( 60, 120,  60);
+        else glColor3ub( 60, 120,  60);
     } else if (mode == 2) {
-        if      (shade == 0) glColor3ub( 20,  50,  20);
+        if (shade == 0) glColor3ub( 20,  50,  20);
         else if (shade == 1) glColor3ub( 30,  65,  30);
-        else                 glColor3ub( 15,  40,  15);
+        else glColor3ub( 15,  40,  15);
     } else if (mode == 3) {
-        if      (shade == 0) glColor3ub(200, 220, 235);
+        if (shade == 0) glColor3ub(200, 220, 235);
         else if (shade == 1) glColor3ub(220, 235, 245);
-        else                 glColor3ub(180, 205, 225);
+        else glColor3ub(180, 205, 225);
     } else if (mode == 4) {
-        if      (shade == 0) glColor3ub(160, 110,  40);
+        if (shade == 0) glColor3ub(160, 110,  40);
         else if (shade == 1) glColor3ub(190, 140,  60);
-        else                 glColor3ub(140,  90,  30);
+        else glColor3ub(140,  90,  30);
     }
 }
 
 void colorRiver(int mode) {
-    if      (mode == 0) glColor3ub( 70, 130, 180);
+    if (mode == 0) glColor3ub( 70, 130, 180);
     else if (mode == 1) glColor3ub( 50, 100, 140);
     else if (mode == 2) glColor3ub( 20,  40,  80);
     else if (mode == 3) glColor3ub(180, 210, 235);
     else if (mode == 4) glColor3ub(180, 100,  40);
 }
 
+// shapes - Rashed
 void drawCircle(float p1, float q1, float r1) {
     int n = 40;
     float tp = 2 * PI;
@@ -161,12 +180,12 @@ void circleFunc(float p1, float q1, float r1, int R, int G, int B) {
     glEnd();
 }
 
-// Sun / Moon
+// Sun / Moon - Rashed
 void drawSunMoon(int mode) {
-    if      (mode == 0) circleFuncSun(0.88f, 0.88f, 0.10f, 255, 255,   0);
-    else if (mode == 1) circleFuncSun(0.88f, 0.88f, 0.10f, 180, 180, 170);
+    if (mode == 0) circleFuncSun(0.88f, 0.88f, 0.10f, 255, 255,   0);
+    // mode = 1 (Monsoon)
     else if (mode == 2) circleFuncSun(0.88f, 0.88f, 0.08f, 220, 230, 255);
-    else if (mode == 3) circleFuncSun(0.88f, 0.88f, 0.09f, 240, 245, 255);
+    // mode = 3 (Winter)
     else if (mode == 4) circleFuncSun(0.88f, 0.88f, 0.10f, 255, 94,  0);
 
     if (mode == 2) {
@@ -180,7 +199,7 @@ void drawSunMoon(int mode) {
     }
 }
 
-// Clouds
+// Clouds - Rashed
 void drawCloudShapes(int wR, int wG, int wB, int cR, int cG, int cB) {
     // Cloud 2
     circleFunc(0.03f,  0.75f, 0.04f, wR, wG, wB);
@@ -235,8 +254,8 @@ void drawClouds(int mode) {
         wR=255; wG=255; wB=255;
         cR=102; cG=178; cB=255;
     } else if (mode == 1) {
-        wR=130; wG=135; wB=140;
-        cR= 90; cG= 95; cB=105;
+        wR=100; wG=105; wB=110;
+        cR= 70; cG= 75; cB= 85;
     } else if (mode == 2) {
         wR= 40; wG= 50; wB= 70;
         cR= 25; cG= 30; cB= 50;
@@ -256,7 +275,136 @@ void drawClouds(int mode) {
     glPopMatrix();
 }
 
+// Airplane - Rashed
+void drawPlane(float x, float y, int currentMode) {
+    glPushMatrix();
+    glTranslatef(x, y, 0.0f);
+    glScalef(0.35f, 0.35f, 1.0f);
 
+    GLubyte bR, bG, bB;
+    GLubyte wR, wG, wB;
+    GLubyte tR, tG, tB;
+    GLubyte cR, cG, cB;
+
+    if (currentMode == 0) {
+        // Day
+        bR=245; bG=245; bB=235;
+        wR=70;  wG=130; wB=220;
+        tR=60;  tG=120; tB=200;
+        cR=30;  cG=30;  cB=40;
+    } else if (currentMode == 4) {
+        // Evening
+        bR=200; bG=150; bB=120;
+        wR=60;  wG=90;  wB=140;
+        tR=50;  tG=80;  tB=130;
+        cR=20;  cG=20;  cB=20;
+    } else {
+        // Night
+        bR=40;  bG=45;  bB=55;
+        wR=25;  wG=30;  wB=40;
+        tR=25;  tG=30;  tB=40;
+        cR=10;  cG=10;  cB=10;
+    }
+
+    // Wing
+    glColor3ub(wR*0.7f, wG*0.7f, wB*0.7f);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.05f,  0.01f);
+    glVertex2f(-0.08f,  0.06f);
+    glVertex2f(-0.02f,  0.06f);
+    glVertex2f( 0.02f,  0.01f);
+    glEnd();
+
+    // Body
+    glColor3ub(bR, bG, bB);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.15f, -0.02f);
+    glVertex2f( 0.10f, -0.02f);
+    glVertex2f( 0.15f,  0.00f);
+    glVertex2f( 0.10f,  0.02f);
+    glVertex2f(-0.15f,  0.02f);
+    glEnd();
+
+    // Tail
+    glColor3ub(tR, tG, tB);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.12f,  0.02f);
+    glVertex2f(-0.15f,  0.08f);
+    glVertex2f(-0.10f,  0.08f);
+    glVertex2f(-0.08f,  0.02f);
+    glEnd();
+
+    // Wing - Front
+    glColor3ub(wR, wG, wB);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.05f, -0.01f);
+    glVertex2f(-0.08f, -0.06f);
+    glVertex2f(-0.02f, -0.06f);
+    glVertex2f( 0.02f, -0.01f);
+    glEnd();
+
+    // Cockpit Window
+    glColor3ub(cR, cG, cB);
+    glBegin(GL_POLYGON);
+    glVertex2f( 0.08f,  0.00f);
+    glVertex2f( 0.12f,  0.00f);
+    glVertex2f( 0.10f,  0.02f);
+    glVertex2f( 0.07f,  0.02f);
+    glEnd();
+
+    // Blinking Light
+    if (currentMode == 2 || currentMode == 4) {
+        if (sin(fireTime * 2.5f) > 0.8f) {
+            glColor3ub(255, 40, 40);
+            glPointSize(5.0f);
+            glBegin(GL_POINTS);
+            glVertex2f(-0.12f, 0.09f);
+            glVertex2f(0.0f, -0.035f);
+            glEnd();
+        }
+    }
+
+    glPopMatrix();
+}
+
+// Birds - Rashed
+void drawBird(float cx, float cy, float scale, float flapOffset) {
+    float flap = sin(birdTime + flapOffset);
+    float wingY = 0.008f * scale * flap;
+
+    glColor3ub(15, 15, 15);
+
+    // Body
+    glBegin(GL_TRIANGLES);
+    glVertex2f(cx, cy);
+    glVertex2f(cx + 0.012f * scale, cy + 0.002f * scale);
+    glVertex2f(cx + 0.012f * scale, cy - 0.002f * scale);
+    glEnd();
+
+    // Top Wing
+    glBegin(GL_TRIANGLES);
+    glVertex2f(cx + 0.003f * scale, cy + 0.001f * scale);
+    glVertex2f(cx + 0.009f * scale, cy + 0.006f * scale + wingY);
+    glVertex2f(cx + 0.010f * scale, cy + 0.001f * scale);
+    glEnd();
+
+    // Bottom Wing
+    glBegin(GL_TRIANGLES);
+    glVertex2f(cx + 0.003f * scale, cy - 0.001f * scale);
+    glVertex2f(cx + 0.009f * scale, cy - 0.006f * scale + wingY);
+    glVertex2f(cx + 0.010f * scale, cy - 0.001f * scale);
+    glEnd();
+}
+
+void drawFlock(float x, float y) {
+    drawBird(x,          y,          1.0f,  0.0f);
+    drawBird(x + 0.03f,  y + 0.02f,  0.8f,  1.0f);
+    drawBird(x + 0.04f,  y - 0.01f,  0.9f,  2.0f);
+    drawBird(x + 0.07f,  y + 0.01f,  0.7f,  0.5f);
+    drawBird(x + 0.08f,  y - 0.02f,  0.75f, 1.5f);
+}
+
+// Environments - Nahin
 void drawEnvironment(int mode) {
     // hills
     colorHill(mode, 0);
@@ -367,7 +515,7 @@ void drawEnvironment(int mode) {
     glEnd();
 }
 
-// fire glow
+// Glow - Nijhum
 void drawFireGlow(float cx, float cy) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -433,9 +581,9 @@ void drawFireGlow(float cx, float cy) {
     glDisable(GL_BLEND);
 }
 
-// tent
+// Tent function - Nijhum
 void drawTent(int mode) {
-    if      (mode == 0) glColor3ub(217, 207, 23);
+    if (mode == 0) glColor3ub(217, 207, 23);
     else if (mode == 1) glColor3ub(180, 165,  0);
     else if (mode == 2) glColor3ub( 70,  60,  0);
     else if (mode == 3) glColor3ub(200, 190, 120);
@@ -446,7 +594,7 @@ void drawTent(int mode) {
     glVertex2f(-0.78f, -0.75f);
     glEnd();
 
-    if      (mode == 0) glColor3ub(240, 220,  0);
+    if (mode == 0) glColor3ub(240, 220,  0);
     else if (mode == 1) glColor3ub(180, 165,  0);
     else if (mode == 2) glColor3ub( 90,  80,  0);
     else if (mode == 3) glColor3ub(220, 210, 140);
@@ -458,7 +606,7 @@ void drawTent(int mode) {
     glVertex2f(-0.5f,  -0.40f);
     glEnd();
 
-    if      (mode == 0) glColor3ub(255, 235,  20);
+    if (mode == 0) glColor3ub(255, 235,  20);
     else if (mode == 1) glColor3ub(200, 185,  10);
     else if (mode == 2) glColor3ub(227, 224, 70);
     else if (mode == 3) glColor3ub(235, 225, 160);
@@ -469,7 +617,7 @@ void drawTent(int mode) {
     glVertex2f(-0.5f, -0.77f);
     glEnd();
 
-    if      (mode == 0) glColor3ub(255, 245,  50);
+    if (mode == 0) glColor3ub(255, 245,  50);
     else if (mode == 1) glColor3ub(215, 200,  20);
     else if (mode == 2) glColor3ub(207, 204, 64);
     else if (mode == 3) glColor3ub(245, 240, 180);
@@ -483,21 +631,25 @@ void drawTent(int mode) {
     glLineWidth(2.0f);
     glColor3ub(180, 180, 180);
     glBegin(GL_LINES);
-    glVertex2f(-0.4f,   -0.76f); glVertex2f(-0.4f,   -0.74f);
-    glVertex2f(-0.582f, -0.80f); glVertex2f(-0.582f, -0.78f);
-    glVertex2f(-0.79f,  -0.79f); glVertex2f(-0.79f,  -0.77f);
-    glVertex2f(-0.81f,  -0.76f); glVertex2f(-0.81f,  -0.74f);
+    glVertex2f(-0.4f,   -0.76f);
+    glVertex2f(-0.4f,   -0.74f);
+    glVertex2f(-0.582f, -0.80f);
+    glVertex2f(-0.582f, -0.78f);
+    glVertex2f(-0.79f,  -0.79f);
+    glVertex2f(-0.79f,  -0.77f);
+    glVertex2f(-0.81f,  -0.76f);
+    glVertex2f(-0.81f,  -0.74f);
     glEnd();
 }
 
+// Tent - Nijhum
 void madeByNijhum(int mode) {
-
     // left tent
     drawTent(mode);
 
     // right tent
     glPushMatrix();
-    glTranslatef(-0.30f, 0.0f, 0.0f);
+    glTranslatef(-0.60f, 0.05f, 0.0f);
     glScalef(-1.0f, 1.0f, 1.0f);
     drawTent(mode);
     glPopMatrix();
@@ -512,7 +664,7 @@ void madeByNijhum(int mode) {
     glEnd();
 
     if (mode == 2) glColor3ub(60, 40, 15);
-    else           glColor3ub(150, 80, 20);
+    else glColor3ub(150, 80, 20);
     glBegin(GL_POLYGON);
     glVertex2f(-0.4f,   -0.60f);
     glVertex2f(-0.395f, -0.68f);
@@ -522,7 +674,7 @@ void madeByNijhum(int mode) {
     glEnd();
 
     if (mode == 2) glColor3ub(60, 40, 15);
-    else           glColor3ub(150, 80, 20);
+    else glColor3ub(150, 80, 20);
     glBegin(GL_POLYGON);
     glVertex2f(-0.225f, -0.60f);
     glVertex2f(-0.221f, -0.65f);
@@ -621,7 +773,7 @@ void madeByNijhum(int mode) {
 
         glLineWidth(1.5f);
         if (mode == 2 || mode == 4) glColor3ub(140, 140, 140);
-        else                        glColor3ub(200, 200, 200);
+        else glColor3ub(200, 200, 200);
         glEnable(GL_LINE_SMOOTH);
         glBegin(GL_LINE_STRIP);
         glVertex2f(-0.320f, -0.738f);
@@ -639,7 +791,7 @@ void madeByNijhum(int mode) {
     }
 }
 
-// watch tower
+// Watch Tower - Wakil
 void drawWatchTower(float x, float y, float s, int mode) {
     float woodR, woodG, woodB;
     float woodDR, woodDG, woodDB;
@@ -788,10 +940,20 @@ void drawWatchTower(float x, float y, float s, int mode) {
             glVertex2f(x-0.01f*s, y+ly*s);
         }
     glEnd();
+
+    // watch tower light blink
+    if (mode == 2) {
+        if (sin(fireTime * 2.5f) > 0.8f) {
+            glColor3ub(255, 0, 0);
+            glPointSize(5.0f);
+            glBegin(GL_POINTS);
+            glVertex2f(x, y + 0.40f * s);
+            glEnd();
+        }
+    }
 }
 
-
-// tree
+// trees - Rittik
 void drawTree(float x, float y, float s, int mode) {
     float windX = 0.0f;
     if (mode == 1) {
@@ -853,15 +1015,14 @@ void drawTrees(int mode) {
     drawTree2( 0.80, -0.30, 0.65, mode);
 }
 
-
-// weather
+// snow - Wakil
 void drawWeather(int mode) {
     if (mode == 1) {
         glColor3ub(150, 160, 220);
         glLineWidth(1.0f);
         glBegin(GL_LINES);
         for(int i = 0; i < 200; i++) {
-            glVertex2f(particleX[i], particleY[i]);
+            glVertex2f(particleX[i],           particleY[i]);
             glVertex2f(particleX[i] + 0.015f, particleY[i] - 0.08f);
         }
         glEnd();
@@ -876,15 +1037,32 @@ void drawWeather(int mode) {
     }
 }
 
+// fireflies - Nijhum
+void drawFireflies(int mode) {
+    if (mode == 2) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glPointSize(3.5f);
+
+        glBegin(GL_POINTS);
+        for(int i = 0; i < NUM_FIREFLIES; i++) {
+            float alpha = (sin(fireflyPhase[i]) + 1.0f) / 2.0f;
+            glColor4f(0.8f, 1.0f, 0.2f, alpha);
+            glVertex2f(fireflyX[i], fireflyY[i]);
+        }
+        glEnd();
+
+        glDisable(GL_BLEND);
+    }
+}
+
 void keyboard(unsigned char key, int x, int y) {
     switch(key) {
-        case '1': mode = 0; autoCycle = false; break;
-        case '2': mode = 1; autoCycle = false; break;
-        case '3': mode = 2; autoCycle = false; break;
-        case '4': mode = 3; autoCycle = false; break;
-        case '5': mode = 4; autoCycle = false; break;
-        case 'c':
-        case 'C': autoCycle = !autoCycle; break;
+        case '1': mode = 0; break;
+        case '2': mode = 1; break;
+        case '3': mode = 2; break;
+        case '4': mode = 3; break;
+        case '5': mode = 4; break;
     }
     glutPostRedisplay();
 }
@@ -901,6 +1079,12 @@ void init() {
         starX[i] = (rand() % 200) / 100.0f - 1.0f;
         starY[i] = (rand() % 100) / 100.0f + 0.2f;
     }
+
+    for(int i = 0; i < NUM_FIREFLIES; i++) {
+        fireflyX[i] = (rand() % 200) / 100.0f - 1.0f;
+        fireflyY[i] = (rand() % 100) / 100.0f - 0.8f;
+        fireflyPhase[i] = (rand() % 628) / 100.0f;
+    }
 }
 
 void update(int value) {
@@ -912,13 +1096,26 @@ void update(int value) {
     fireTime += 0.1f;
     windTime += 0.04f;
 
-    if (autoCycle) {
-        cycleTimer++;
-        if (cycleTimer > 300) {
-            cycleIndex = (cycleIndex + 1) % 3;
-            mode = dayNightCycle[cycleIndex];
-            cycleTimer = 0;
+    planeX += 0.003f;
+    if (planeX > 1.3f) {
+        planeX = -1.3f;
+    }
+
+    birdTime += 0.15f;
+    birdX -= 0.004f;
+    if (birdX < -1.5f) {
+        birdX = 1.5f;
+    }
+
+    if (mode == 1) {
+        lightningTimer--;
+        if (lightningTimer <= 0) {
+            flashDuration = 10;
+            lightningTimer = rand() % 200 + 100;
         }
+        if (flashDuration > 0) flashDuration--;
+    } else {
+        flashDuration = 0;
     }
 
     for(int i = 0; i < 200; i++) {
@@ -936,13 +1133,30 @@ void update(int value) {
             particleY[i] = 1.0f;
         }
     }
+
+    for(int i = 0; i < NUM_FIREFLIES; i++) {
+        fireflyPhase[i] += 0.03f;
+
+        fireflyX[i] += 0.0008f * sin(fireflyPhase[i] * 1.5f);
+        fireflyY[i] += 0.0004f * cos(fireflyPhase[i] * 1.2f);
+
+        if (fireflyX[i] > 1.0f) fireflyX[i] = -1.0f;
+        if (fireflyX[i] < -1.0f) fireflyX[i] = 1.0f;
+    }
+
     glutPostRedisplay();
     glutTimerFunc(16, update, 0);
 }
 
 void display() {
-    if      (mode == 0) glClearColor(0.53f, 0.81f, 0.98f, 1.0f);
-    else if (mode == 1) glClearColor(0.38f, 0.44f, 0.52f, 1.0f);
+    if (mode == 0) glClearColor(0.53f, 0.81f, 0.98f, 1.0f);
+    else if (mode == 1) {
+        if (flashDuration > 0 && (flashDuration % 2 == 0)) {
+            glClearColor(0.95f, 0.98f, 1.0f, 1.0f);
+        } else {
+            glClearColor(0.38f, 0.44f, 0.52f, 1.0f);
+        }
+    }
     else if (mode == 2) glClearColor(0.05f, 0.08f, 0.18f, 1.0f);
     else if (mode == 3) glClearColor(0.72f, 0.82f, 0.90f, 1.0f);
     else if (mode == 4) glClearColor(0.95f, 0.55f, 0.20f, 1.0f);
@@ -951,11 +1165,24 @@ void display() {
 
     drawSunMoon(mode);
     drawClouds(mode);
+
+    if (mode == 0 || mode == 2 || mode == 4) {
+        drawPlane(planeX, 0.75f, mode);
+    }
+
+    if (mode == 0 || mode == 4) {
+        drawFlock(birdX, 0.45f);
+    }
+
     drawEnvironment(mode);
     drawWatchTower(0.3f, -0.2f, 1.0f, mode);
-    madeByNijhum(mode);
+
     drawTrees(mode);
+    madeByNijhum(mode);
+
     drawWeather(mode);
+
+    drawFireflies(mode);
 
     glFlush();
 }
