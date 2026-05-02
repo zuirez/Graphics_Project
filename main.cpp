@@ -268,70 +268,191 @@ void drawEnvironment(int mode) {
     glEnd();
 }
 
+// Function for the objects made by Nijhum
 void madeByNijhum(int mode) {
-    setTintColor(119, 69, 19, mode);
+    // Tent -----------------------------------------
+
+    // shade 4
+    glColor3ub(119, 69, 19);
     glBegin(GL_POLYGON);
-    glVertex2f(-0.72f, -0.45f); glVertex2f(-0.81f, -0.76f); glVertex2f(-0.78f, -0.75f);
+    glVertex2f(-0.72f, -0.45f);
+    glVertex2f(-0.81f, -0.76f);
+    glVertex2f(-0.78f, -0.75f);
     glEnd();
 
-    setTintColor(139, 69, 19, mode);
+    // shade 1
+    glColor3ub(139, 69, 19);
     glBegin(GL_POLYGON);
-    glVertex2f(-0.72f, -0.45f); glVertex2f(-0.79f, -0.79f);
-    glVertex2f(-0.58f, -0.8f);  glVertex2f(-0.5f, -0.4f);
+    glVertex2f(-0.72f, -0.45f);
+    glVertex2f(-0.79f, -0.79f);
+    glVertex2f(-0.58f, -0.8f);
+    glVertex2f(-0.5f, -0.4f);
     glEnd();
 
-    setTintColor(159, 69, 19, mode);
+    // shade 2
+    glColor3ub(159, 69, 19);
     glBegin(GL_POLYGON);
-    glVertex2f(-0.5f, -0.4f);   glVertex2f(-0.58f, -0.79f); glVertex2f(-0.5f, -0.77f);
+    glVertex2f(-0.5f, -0.4f);
+    glVertex2f(-0.58f, -0.79f);
+    glVertex2f(-0.5f, -0.77f);
     glEnd();
 
-    setTintColor(179, 69, 19, mode);
+    // shade 3
+    glColor3ub(179, 69, 19);
     glBegin(GL_POLYGON);
-    glVertex2f(-0.5f, -0.4f);   glVertex2f(-0.5f, -0.76f); glVertex2f(-0.4f, -0.76f);
+    glVertex2f(-0.5f, -0.4f);
+    glVertex2f(-0.5f, -0.76f);
+    glVertex2f(-0.4f, -0.76f);
     glEnd();
 
+    // pilers
     glLineWidth(2.0f);
-    setTintColor(255, 255, 255, mode);
+    glColor4ub(1, 1, 1, 255);
     glBegin(GL_LINES);
-    glVertex2f(-0.4f,   -0.76f); glVertex2f(-0.4f,   -0.74f);
-    glVertex2f(-0.582f, -0.8f);  glVertex2f(-0.582f, -0.78f);
-    glVertex2f(-0.79f, -0.79f);  glVertex2f(-0.79f, -0.77f);
-    glVertex2f(-0.81f, -0.76f);  glVertex2f(-0.81f, -0.74f);
+    glVertex2f(-0.4f,   -0.76f); // Piler 1 Start
+    glVertex2f(-0.4f,   -0.74f); // Piler 1 End
+    glVertex2f(-0.582f, -0.8f);  // Piler 2 Start
+    glVertex2f(-0.582f, -0.78f); // Piler 2 End
+    glVertex2f(-0.79f, -0.79f);  // Piler 3 Start
+    glVertex2f(-0.79f, -0.77f);  // Piler 3 End
+    glVertex2f(-0.81f, -0.76f);  // Piler 4 Start
+    glVertex2f(-0.81f, -0.74f);  // Piler 4 End
     glEnd();
 
-    glEnable(GL_LINE_SMOOTH);
-    glLineWidth(10.0f);
-    setTintColor(139, 69, 19, mode);
-    glBegin(GL_LINES);
-    glVertex2f(-0.2f, -0.85f); glVertex2f(-0.1f, -0.75f);
-    glVertex2f(-0.2f, -0.75f); glVertex2f(-0.1f, -0.85f);
-    glEnd();
 
+    // log ---------------------------------
     glBegin(GL_POLYGON);
-    setTintColor(101, 67, 33, mode);
-    glVertex2f(-0.4f, -0.60f);   glVertex2f(-0.395f, -0.68f);
-    glVertex2f(-0.22f, -0.65f);  glVertex2f(-0.225f, -0.57f);
+    glColor3ub(101, 67, 33);
+    glVertex2f(-0.4f, -0.60f);
+    glVertex2f(-0.395f, -0.68f);
+    glVertex2f(-0.22f, -0.65f);
+    glVertex2f(-0.225f, -0.57f);
     glEnd();
 
+    // log shade 1 ---------------------------
     glBegin(GL_POLYGON);
-    setTintColor(150, 75, 0, mode);
-    glVertex2f(-0.4f, -0.60f);   glVertex2f(-0.395f, -0.68f);
-    glVertex2f(-0.394f, -0.65f); glVertex2f(-0.397f, -0.68f);
+    glColor3ub(150, 75, 0);
+    glVertex2f(-0.4f, -0.60f);
+    glVertex2f(-0.395f, -0.68f);
+    glVertex2f(-0.394f, -0.65f);
+    glVertex2f(-0.397f, -0.68f);
     glVertex2f(-0.397f, -0.60f);
     glEnd();
 
+    // log shade 2 ---------------------------
     glBegin(GL_POLYGON);
-    setTintColor(150, 75, 0, mode);
-    glVertex2f(-0.225f, -0.60f); glVertex2f(-0.221f, -0.65f);
-    glVertex2f(-0.224f,  -0.64f); glVertex2f(-0.223f, -0.65f);
+    glColor3ub(150, 75, 0);
+    glVertex2f(-0.225f, -0.60f);
+    glVertex2f(-0.221f, -0.65f);
+    glVertex2f(-0.224f,  -0.64f);
+    glVertex2f(-0.223f, -0.65f);
     glVertex2f(-0.222f, -0.57f);
     glEnd();
 
+    // log upper part ------------------------
     glLineWidth(8.0f);
-    setTintColor(101, 67, 33, mode);
+    glColor4ub(101, 67, 33, 255);
     glBegin(GL_LINES);
-    glVertex2f(-0.35f, -0.60f); glVertex2f(-0.33f, -0.57f);
+    glVertex2f(-0.35f, -0.60f); // Start
+    glVertex2f(-0.33f, -0.57f); // End
     glEnd();
+
+    // Stones around the fire -------------------------------
+    glColor3ub(100, 100, 100);
+    circleFunc(-0.32f, -0.78f, 0.045f, 100, 100, 100);
+
+    // Individual rocks
+    glColor3ub(120, 120, 120);
+    circleFunc(-0.29f, -0.765f, 0.013f, 120, 120, 120);
+    circleFunc(-0.32f, -0.755f, 0.012f, 130, 130, 130);
+    circleFunc(-0.35f, -0.765f, 0.013f, 110, 110, 110);
+    circleFunc(-0.36f, -0.785f, 0.011f, 125, 125, 125);
+    circleFunc(-0.34f, -0.796f, 0.013f, 115, 115, 115);
+    circleFunc(-0.30f, -0.796f, 0.012f, 120, 120, 120);
+    circleFunc(-0.28f, -0.783f, 0.011f, 118, 118, 118);
+
+    // wood pieces ------------------------
+    glColor3ub(101, 67, 33);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.355f, -0.790f);
+    glVertex2f(-0.285f, -0.790f);
+    glVertex2f(-0.285f, -0.778f);
+    glVertex2f(-0.355f, -0.778f);
+    glEnd();
+
+    // second log (angled) -----------------
+    glLineWidth(5.0f);
+    glColor3ub(120, 70, 20);
+    glBegin(GL_LINES);
+    glVertex2f(-0.36f, -0.795f);
+    glVertex2f(-0.29f, -0.770f);
+    glVertex2f(-0.285f, -0.795f);
+    glVertex2f(-0.355f, -0.770f);
+    glEnd();
+
+    // Ember glow ------------------------
+    glColor3ub(180, 60, 0);
+    circleFunc(-0.32f, -0.780f, 0.022f, 180, 60, 0);
+
+    // Main flame --------------------
+    glColor3ub(255, 120, 0);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.335f, -0.778f);
+    glVertex2f(-0.305f, -0.778f);
+    glVertex2f(-0.315f, -0.748f);
+    glVertex2f(-0.32f,  -0.738f);
+    glVertex2f(-0.325f, -0.748f);
+    glEnd();
+
+    // Left sub-flame ------------------
+    glColor3ub(255, 80, 0);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.340f, -0.778f);
+    glVertex2f(-0.320f, -0.778f);
+    glVertex2f(-0.328f, -0.758f);
+    glVertex2f(-0.336f, -0.750f);
+    glEnd();
+
+    // Right sub-flame ---------------------
+    glColor3ub(255, 100, 0);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.320f, -0.778f);
+    glVertex2f(-0.300f, -0.778f);
+    glVertex2f(-0.308f, -0.758f);
+    glVertex2f(-0.304f, -0.752f);
+    glEnd();
+
+    // Inner yellow flame -------------------
+    glColor3ub(255, 220, 0);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.330f, -0.778f);
+    glVertex2f(-0.310f, -0.778f);
+    glVertex2f(-0.316f, -0.758f);
+    glVertex2f(-0.32f,  -0.750f);
+    glVertex2f(-0.324f, -0.758f);
+    glEnd();
+
+    // White-hot center spark -----------------
+    glColor3ub(255, 255, 200);
+    circleFunc(-0.32f, -0.768f, 0.007f, 255, 255, 200);
+
+    // thin gray lines rising ----------------
+    glLineWidth(1.5f);
+    glColor3ub(180, 180, 180);
+    glEnable(GL_LINE_SMOOTH);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(-0.320f, -0.738f);
+    glVertex2f(-0.316f, -0.725f);
+    glVertex2f(-0.323f, -0.712f);
+    glVertex2f(-0.318f, -0.700f);
+    glEnd();
+    glColor3ub(160, 160, 160);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(-0.324f, -0.742f);
+    glVertex2f(-0.330f, -0.728f);
+    glVertex2f(-0.325f, -0.714f);
+    glEnd();
+
 }
 
 void drawWatchTower(float x, float y, float s, int mode) {
