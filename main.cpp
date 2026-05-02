@@ -11,22 +11,19 @@ int mode = 0;
 float particleY[200];
 float particleX[200];
 
-// Global variables to track animations
+// Global variables
 float cloudOffset = 0.0f;
 float fireTime = 0.0f;
+float windTime = 0.0f;
 float starX[150];
 float starY[150];
 
-// NEW: Day/Night Auto-Cycle Variables
-bool autoCycle = true;       // Set to true to start cycling automatically
-int cycleTimer = 0;          // Counts frames to time the transition
-int cycleIndex = 0;          // Tracks which phase of the cycle we are in
-int dayNightCycle[] = {0, 4, 2}; // The sequence: Day -> Evening -> Night
+// Day/Night Auto-Cycle Variables
+bool autoCycle = true;
+int cycleTimer = 0;
+int cycleIndex = 0;
+int dayNightCycle[] = {0, 4, 2};
 
-
-// ==========================================================
-// SIMPLE COLOR CLAMP HELPERS
-// ==========================================================
 GLubyte clamp(int value) {
     if (value > 255) return 255;
     if (value < 0) return 0;
@@ -39,10 +36,7 @@ float clampF(float value) {
     return value;
 }
 
-
-// ==========================================================
-// SEASONAL COLOR PALETTES
-// ==========================================================
+// Seasonal Colors
 void colorLeaves(int mode) {
     if      (mode == 0) glColor3ub(80,  160,  50);
     else if (mode == 1) glColor3ub(50,  120,  40);
@@ -123,22 +117,6 @@ void colorRiver(int mode) {
     else if (mode == 4) glColor3ub(180, 100,  40);
 }
 
-void colorTent(int mode, int shade) {
-    int base[3];
-    if      (mode == 0) { base[0]=139; base[1]=69; base[2]=19; }
-    else if (mode == 1) { base[0]=100; base[1]=55; base[2]=20; }
-    else if (mode == 2) { base[0]= 50; base[1]=25; base[2]= 8; }
-    else if (mode == 3) { base[0]=160; base[1]=140; base[2]=130; }
-    else if (mode == 4) { base[0]=180; base[1]=80; base[2]=10; }
-
-    int offset = (shade - 2) * 20;
-    glColor3ub(clamp(base[0]+offset), clamp(base[1]+offset), clamp(base[2]+offset));
-}
-
-
-// ==========================================================
-// SHAPE HELPERS
-// ==========================================================
 void drawCircle(float p1, float q1, float r1) {
     int n = 40;
     float tp = 2 * PI;
@@ -183,10 +161,7 @@ void circleFunc(float p1, float q1, float r1, int R, int G, int B) {
     glEnd();
 }
 
-
-// ==========================================================
-// SUN / MOON
-// ==========================================================
+// Sun / Moon
 void drawSunMoon(int mode) {
     if      (mode == 0) circleFuncSun(0.88f, 0.88f, 0.10f, 255, 255,   0);
     else if (mode == 1) circleFuncSun(0.88f, 0.88f, 0.10f, 180, 180, 170);
@@ -205,10 +180,7 @@ void drawSunMoon(int mode) {
     }
 }
 
-
-// ==========================================================
-// CLOUDS - Helper Function
-// ==========================================================
+// Clouds
 void drawCloudShapes(int wR, int wG, int wB, int cR, int cG, int cB) {
     // Cloud 2
     circleFunc(0.03f,  0.75f, 0.04f, wR, wG, wB);
@@ -285,65 +257,76 @@ void drawClouds(int mode) {
 }
 
 
-// ==========================================================
-// ENVIRONMENT (hills, river, ground)
-// ==========================================================
 void drawEnvironment(int mode) {
-    // ---- HILLS ----
+    // hills
     colorHill(mode, 0);
     glBegin(GL_POLYGON);
-    glVertex2f(-0.3f, 0.0f);  glVertex2f(-0.1f, 0.25f);
-    glVertex2f( 0.1f, 0.45f); glVertex2f( 0.3f, 0.6f);
-    glVertex2f( 0.5f, 0.45f); glVertex2f( 0.7f, 0.25f);
+    glVertex2f(-0.3f, 0.0f);
+    glVertex2f(-0.1f, 0.25f);
+    glVertex2f( 0.1f, 0.45f);
+    glVertex2f( 0.3f, 0.6f);
+    glVertex2f( 0.5f, 0.45f);
+    glVertex2f( 0.7f, 0.25f);
     glVertex2f( 0.9f, 0.0f);
     glEnd();
 
     colorHill(mode, 1);
     glBegin(GL_POLYGON);
-    glVertex2f(0.3f, 0.6f);  glVertex2f(0.5f, 0.45f);
-    glVertex2f(0.7f, 0.25f); glVertex2f(0.9f, 0.0f);
+    glVertex2f(0.3f, 0.6f);
+    glVertex2f(0.5f, 0.45f);
+    glVertex2f(0.7f, 0.25f);
+    glVertex2f(0.9f, 0.0f);
     glEnd();
 
     colorHill(mode, 2);
     glBegin(GL_POLYGON);
-    glVertex2f(-0.6f, 0.0f);  glVertex2f(-0.45f, 0.2f);
-    glVertex2f(-0.3f, 0.35f); glVertex2f(-0.15f, 0.2f);
+    glVertex2f(-0.6f, 0.0f);
+    glVertex2f(-0.45f, 0.2f);
+    glVertex2f(-0.3f, 0.35f);
+    glVertex2f(-0.15f, 0.2f);
     glVertex2f( 0.0f, 0.0f);
     glEnd();
 
     colorHill(mode, 1);
     glBegin(GL_POLYGON);
-    glVertex2f(-0.3f, 0.35f); glVertex2f(-0.15f, 0.2f);
+    glVertex2f(-0.3f, 0.35f);
+    glVertex2f(-0.15f, 0.2f);
     glVertex2f( 0.0f, 0.0f);
     glEnd();
 
     colorHill(mode, 0);
     glBegin(GL_POLYGON);
-    glVertex2f(-1.0f, 0.0f); glVertex2f(-0.85f, 0.25f);
-    glVertex2f(-0.7f, 0.45f);glVertex2f(-0.55f, 0.3f);
+    glVertex2f(-1.0f, 0.0f);
+    glVertex2f(-0.85f, 0.25f);
+    glVertex2f(-0.7f, 0.45f);
+    glVertex2f(-0.55f, 0.3f);
     glVertex2f(-0.4f, 0.0f);
     glEnd();
 
     colorHill(mode, 1);
     glBegin(GL_POLYGON);
-    glVertex2f(-0.7f, 0.45f); glVertex2f(-0.55f, 0.3f);
+    glVertex2f(-0.7f, 0.45f);
+    glVertex2f(-0.55f, 0.3f);
     glVertex2f(-0.4f, 0.0f);
     glEnd();
 
     colorHill(mode, 2);
     glBegin(GL_POLYGON);
-    glVertex2f(0.2f, 0.0f);  glVertex2f(0.4f, 0.3f);
-    glVertex2f(0.6f, 0.5f);  glVertex2f(0.8f, 0.3f);
+    glVertex2f(0.2f, 0.0f);
+    glVertex2f(0.4f, 0.3f);
+    glVertex2f(0.6f, 0.5f);
+    glVertex2f(0.8f, 0.3f);
     glVertex2f(1.0f, 0.0f);
     glEnd();
 
     colorHill(mode, 1);
     glBegin(GL_POLYGON);
-    glVertex2f(0.6f, 0.5f);  glVertex2f(0.8f, 0.3f);
+    glVertex2f(0.6f, 0.5f);
+    glVertex2f(0.8f, 0.3f);
     glVertex2f(1.0f, 0.0f);
     glEnd();
 
-    // ---- RIVER ----
+    // river
     colorRiver(mode);
     glBegin(GL_TRIANGLES);
     glVertex2f(-0.62f, 0.0f);
@@ -351,33 +334,40 @@ void drawEnvironment(int mode) {
     glVertex2f( 0.4f,  0.0f);
     glEnd();
 
-    // ---- GROUND PATCHES ----
+    // field
     colorGround(mode, 2);
     glBegin(GL_POLYGON);
-    glVertex2f(0.2f, -0.2f); glVertex2f(1.0f, -0.2f);
-    glVertex2f(1.0f,  0.45f);glVertex2f(0.8f,  0.35f);
-    glVertex2f(0.6f,  0.2f); glVertex2f(0.4f,  0.0f);
+    glVertex2f(0.2f, -0.2f);
+    glVertex2f(1.0f, -0.2f);
+    glVertex2f(1.0f,  0.45f);
+    glVertex2f(0.8f,  0.35f);
+    glVertex2f(0.6f,  0.2f);
+    glVertex2f(0.4f,  0.0f);
     glEnd();
 
     colorGround(mode, 0);
     glBegin(GL_QUADS);
-    glVertex2f(-1.0f, -0.2f); glVertex2f(1.0f, -0.2f);
-    glVertex2f( 1.0f, -1.0f); glVertex2f(-1.0f,-1.0f);
+    glVertex2f(-1.0f, -0.2f);
+    glVertex2f(1.0f, -0.2f);
+    glVertex2f( 1.0f, -1.0f);
+    glVertex2f(-1.0f,-1.0f);
     glEnd();
 
     colorGround(mode, 1);
     glBegin(GL_POLYGON);
-    glVertex2f( 0.4f, -0.3f);  glVertex2f( 0.2f, -0.2f);
-    glVertex2f( 0.0f, -0.15f); glVertex2f(-0.4f,  0.0f);
-    glVertex2f(-0.6f,  0.1f);  glVertex2f(-0.8f,  0.2f);
-    glVertex2f(-1.0f,  0.25f); glVertex2f(-1.0f, -0.3f);
+    glVertex2f( 0.4f, -0.3f);
+    glVertex2f( 0.2f, -0.2f);
+    glVertex2f( 0.0f, -0.15f);
+    glVertex2f(-0.4f,  0.0f);
+    glVertex2f(-0.6f,  0.1f);
+    glVertex2f(-0.8f,  0.2f);
+    glVertex2f(-1.0f,  0.25f);
+    glVertex2f(-1.0f, -0.3f);
     glVertex2f( 0.4f, -0.3f);
     glEnd();
 }
 
-// ==========================================================
-// GLOW SYSTEM
-// ==========================================================
+// fire glow
 void drawFireGlow(float cx, float cy) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -443,11 +433,8 @@ void drawFireGlow(float cx, float cy) {
     glDisable(GL_BLEND);
 }
 
-// ==========================================================
-// TENT + CAMPFIRE
-// ==========================================================
-void madeByNijhum(int mode) {
-    // ---- TENT ----
+// tent
+void drawTent(int mode) {
     if      (mode == 0) glColor3ub(217, 207, 23);
     else if (mode == 1) glColor3ub(180, 165,  0);
     else if (mode == 2) glColor3ub( 70,  60,  0);
@@ -501,8 +488,21 @@ void madeByNijhum(int mode) {
     glVertex2f(-0.79f,  -0.79f); glVertex2f(-0.79f,  -0.77f);
     glVertex2f(-0.81f,  -0.76f); glVertex2f(-0.81f,  -0.74f);
     glEnd();
+}
 
-    // ---- LOG / BENCH ----
+void madeByNijhum(int mode) {
+
+    // left tent
+    drawTent(mode);
+
+    // right tent
+    glPushMatrix();
+    glTranslatef(-0.30f, 0.0f, 0.0f);
+    glScalef(-1.0f, 1.0f, 1.0f);
+    drawTent(mode);
+    glPopMatrix();
+
+    // log
     colorBark(mode);
     glBegin(GL_POLYGON);
     glVertex2f(-0.4f,   -0.60f);
@@ -538,7 +538,7 @@ void madeByNijhum(int mode) {
     glVertex2f(-0.33f, -0.57f);
     glEnd();
 
-    // ---- CAMPFIRE STONES ----
+    // stones
     circleFunc(-0.32f, -0.78f, 0.045f, 90, 90, 90);
     circleFunc(-0.29f, -0.765f, 0.013f, 120, 120, 120);
     circleFunc(-0.32f, -0.755f, 0.012f, 130, 130, 130);
@@ -548,7 +548,7 @@ void madeByNijhum(int mode) {
     circleFunc(-0.30f, -0.796f, 0.012f, 120, 120, 120);
     circleFunc(-0.28f, -0.783f, 0.011f, 118, 118, 118);
 
-    // ---- CAMPFIRE WOOD ----
+    // wood
     colorBark(mode);
     glBegin(GL_POLYGON);
     glVertex2f(-0.355f, -0.790f);
@@ -568,10 +568,10 @@ void madeByNijhum(int mode) {
 
     if (mode != 0 && mode != 1 && mode != 4) {
         if (mode == 2 || mode == 3) {
-            drawFireGlow(-0.32f, -0.790f); // Static glow
+            drawFireGlow(-0.32f, -0.790f);
         }
 
-        // ---- DYNAMIC CAMPFIRE FLAME ----
+        // flame
         glPushMatrix();
         glTranslatef(-0.32f, -0.778f, 0.0f);
 
@@ -639,75 +639,129 @@ void madeByNijhum(int mode) {
     }
 }
 
-
-// ==========================================================
-// WATCH TOWER
-// ==========================================================
+// watch tower
 void drawWatchTower(float x, float y, float s, int mode) {
     float woodR, woodG, woodB;
     float woodDR, woodDG, woodDB;
-    if (mode == 0) { woodR=0.45f; woodG=0.28f; woodB=0.14f; woodDR=0.25f; woodDG=0.15f; woodDB=0.08f; }
-    else if (mode == 1) { woodR=0.35f; woodG=0.20f; woodB=0.10f; woodDR=0.18f; woodDG=0.10f; woodDB=0.05f; }
-    else if (mode == 2) { woodR=0.10f; woodG=0.06f; woodB=0.03f; woodDR=0.05f; woodDG=0.03f; woodDB=0.01f; }
-    else if (mode == 3) { woodR=0.55f; woodG=0.50f; woodB=0.45f; woodDR=0.35f; woodDG=0.30f; woodDB=0.28f; }
-    else                { woodR=0.55f; woodG=0.30f; woodB=0.10f; woodDR=0.30f; woodDG=0.15f; woodDB=0.05f; }
+    if (mode == 0) {
+        woodR=0.45f;
+        woodG=0.28f;
+        woodB=0.14f;
+        woodDR=0.25f;
+        woodDG=0.15f;
+        woodDB=0.08f;
+    }
+    else if (mode == 1) {
+        woodR=0.35f;
+        woodG=0.20f;
+        woodB=0.10f;
+        woodDR=0.18f;
+        woodDG=0.10f;
+        woodDB=0.05f;
+    }
+    else if (mode == 2) {
+        woodR=0.10f;
+        woodG=0.06f;
+        woodB=0.03f;
+        woodDR=0.05f;
+        woodDG=0.03f;
+        woodDB=0.01f;
+    }
+    else if (mode == 3) {
+        woodR=0.55f;
+        woodG=0.50f;
+        woodB=0.45f;
+        woodDR=0.35f;
+        woodDG=0.30f;
+        woodDB=0.28f;
+    }
+    else {
+        woodR=0.55f;
+        woodG=0.30f;
+        woodB=0.10f;
+        woodDR=0.30f;
+        woodDG=0.15f;
+        woodDB=0.05f;
+    }
 
     glBegin(GL_QUADS);
         glColor3f(woodR, woodG, woodB);
-        glVertex2f(x-0.07f*s, y);             glVertex2f(x-0.05f*s, y);
-        glVertex2f(x-0.05f*s, y+0.25f*s);     glVertex2f(x-0.07f*s, y+0.25f*s);
+        glVertex2f(x-0.07f*s, y);
+        glVertex2f(x-0.05f*s, y);
+        glVertex2f(x-0.05f*s, y+0.25f*s);
+        glVertex2f(x-0.07f*s, y+0.25f*s);
 
         glColor3f(woodR*0.8f, woodG*0.8f, woodB*0.8f);
-        glVertex2f(x+0.05f*s, y);             glVertex2f(x+0.07f*s, y);
-        glVertex2f(x+0.07f*s, y+0.25f*s);     glVertex2f(x+0.05f*s, y+0.25f*s);
+        glVertex2f(x+0.05f*s, y);
+        glVertex2f(x+0.07f*s, y);
+        glVertex2f(x+0.07f*s, y+0.25f*s);
+        glVertex2f(x+0.05f*s, y+0.25f*s);
     glEnd();
 
     glColor3f(woodR*0.9f, woodG*0.9f, woodB*0.9f);
     glBegin(GL_QUADS);
-        glVertex2f(x-0.08f*s, y+0.05f*s);     glVertex2f(x+0.08f*s, y+0.05f*s);
-        glVertex2f(x+0.08f*s, y+0.07f*s);     glVertex2f(x-0.08f*s, y+0.07f*s);
-        glVertex2f(x-0.08f*s, y+0.15f*s);     glVertex2f(x+0.08f*s, y+0.15f*s);
-        glVertex2f(x+0.08f*s, y+0.17f*s);     glVertex2f(x-0.08f*s, y+0.17f*s);
+        glVertex2f(x-0.08f*s, y+0.05f*s);
+        glVertex2f(x+0.08f*s, y+0.05f*s);
+        glVertex2f(x+0.08f*s, y+0.07f*s);
+        glVertex2f(x-0.08f*s, y+0.07f*s);
+        glVertex2f(x-0.08f*s, y+0.15f*s);
+        glVertex2f(x+0.08f*s, y+0.15f*s);
+        glVertex2f(x+0.08f*s, y+0.17f*s);
+        glVertex2f(x-0.08f*s, y+0.17f*s);
     glEnd();
 
     glLineWidth(3.0f);
     glColor3f(woodDR, woodDG, woodDB);
     glBegin(GL_LINES);
-        glVertex2f(x-0.05f*s, y+0.07f*s);     glVertex2f(x+0.05f*s, y+0.15f*s);
-        glVertex2f(x-0.05f*s, y+0.15f*s);     glVertex2f(x+0.05f*s, y+0.07f*s);
-        glVertex2f(x-0.05f*s, y+0.17f*s);     glVertex2f(x+0.05f*s, y+0.24f*s);
-        glVertex2f(x-0.05f*s, y+0.24f*s);     glVertex2f(x+0.05f*s, y+0.17f*s);
+        glVertex2f(x-0.05f*s, y+0.07f*s);
+        glVertex2f(x+0.05f*s, y+0.15f*s);
+        glVertex2f(x-0.05f*s, y+0.15f*s);
+        glVertex2f(x+0.05f*s, y+0.07f*s);
+        glVertex2f(x-0.05f*s, y+0.17f*s);
+        glVertex2f(x+0.05f*s, y+0.24f*s);
+        glVertex2f(x-0.05f*s, y+0.24f*s);
+        glVertex2f(x+0.05f*s, y+0.17f*s);
     glEnd();
 
     glColor3f(woodR*0.7f, woodG*0.7f, woodB*0.7f);
     glBegin(GL_QUADS);
-        glVertex2f(x-0.10f*s, y+0.23f*s);     glVertex2f(x+0.10f*s, y+0.23f*s);
-        glVertex2f(x+0.10f*s, y+0.25f*s);     glVertex2f(x-0.10f*s, y+0.25f*s);
+        glVertex2f(x-0.10f*s, y+0.23f*s);
+        glVertex2f(x+0.10f*s, y+0.23f*s);
+        glVertex2f(x+0.10f*s, y+0.25f*s);
+        glVertex2f(x-0.10f*s, y+0.25f*s);
     glEnd();
 
     glColor3f(woodR+0.1f, woodG+0.1f, woodB+0.08f);
     glBegin(GL_QUADS);
-        glVertex2f(x-0.10f*s, y+0.25f*s);     glVertex2f(x+0.10f*s, y+0.25f*s);
-        glVertex2f(x+0.10f*s, y+0.27f*s);     glVertex2f(x-0.10f*s, y+0.27f*s);
+        glVertex2f(x-0.10f*s, y+0.25f*s);
+        glVertex2f(x+0.10f*s, y+0.25f*s);
+        glVertex2f(x+0.10f*s, y+0.27f*s);
+        glVertex2f(x-0.10f*s, y+0.27f*s);
     glEnd();
 
     glColor3f(woodR*0.9f, woodG*0.9f, woodB*0.9f);
     glLineWidth(1.5f);
     glBegin(GL_LINES);
         for(float lx = -0.09f; lx <= 0.09f; lx += 0.025f) {
-            glVertex2f(x+lx*s, y+0.27f*s);    glVertex2f(x+lx*s, y+0.32f*s);
+            glVertex2f(x+lx*s, y+0.27f*s);
+            glVertex2f(x+lx*s, y+0.32f*s);
         }
-        glVertex2f(x-0.10f*s, y+0.32f*s);     glVertex2f(x+0.10f*s, y+0.32f*s);
+        glVertex2f(x-0.10f*s, y+0.32f*s);
+        glVertex2f(x+0.10f*s, y+0.32f*s);
     glEnd();
 
     glBegin(GL_QUADS);
         glColor3f(woodR, woodG, woodB);
-        glVertex2f(x-0.08f*s, y+0.32f*s);     glVertex2f(x-0.06f*s, y+0.32f*s);
-        glVertex2f(x-0.06f*s, y+0.35f*s);     glVertex2f(x-0.08f*s, y+0.35f*s);
+        glVertex2f(x-0.08f*s, y+0.32f*s);
+        glVertex2f(x-0.06f*s, y+0.32f*s);
+        glVertex2f(x-0.06f*s, y+0.35f*s);
+        glVertex2f(x-0.08f*s, y+0.35f*s);
 
         glColor3f(woodR*0.8f, woodG*0.8f, woodB*0.8f);
-        glVertex2f(x+0.06f*s, y+0.32f*s);     glVertex2f(x+0.08f*s, y+0.32f*s);
-        glVertex2f(x+0.08f*s, y+0.35f*s);     glVertex2f(x+0.06f*s, y+0.35f*s);
+        glVertex2f(x+0.06f*s, y+0.32f*s);
+        glVertex2f(x+0.08f*s, y+0.32f*s);
+        glVertex2f(x+0.08f*s, y+0.35f*s);
+        glVertex2f(x+0.06f*s, y+0.35f*s);
     glEnd();
 
     glBegin(GL_TRIANGLES);
@@ -725,27 +779,33 @@ void drawWatchTower(float x, float y, float s, int mode) {
     glColor3f(woodDR, woodDG, woodDB);
     glLineWidth(2.0f);
     glBegin(GL_LINES);
-        glVertex2f(x-0.04f*s, y);             glVertex2f(x-0.04f*s, y+0.25f*s);
-        glVertex2f(x-0.01f*s, y);             glVertex2f(x-0.01f*s, y+0.25f*s);
+        glVertex2f(x-0.04f*s, y);
+        glVertex2f(x-0.04f*s, y+0.25f*s);
+        glVertex2f(x-0.01f*s, y);
+        glVertex2f(x-0.01f*s, y+0.25f*s);
         for(float ly = 0.02f; ly < 0.25f; ly += 0.025f) {
-            glVertex2f(x-0.04f*s, y+ly*s);    glVertex2f(x-0.01f*s, y+ly*s);
+            glVertex2f(x-0.04f*s, y+ly*s);
+            glVertex2f(x-0.01f*s, y+ly*s);
         }
     glEnd();
 }
 
 
-// ==========================================================
-// TREES
-// ==========================================================
+// tree
 void drawTree(float x, float y, float s, int mode) {
+    float windX = 0.0f;
+    if (mode == 1) {
+        windX = 0.002f * sin(windTime + x * 10.0f) + 0.001f * cos(windTime * 1.5f);
+    }
+
     colorLeaves(mode);
-    drawCircle(x - 0.10*s, y + 0.35*s, 0.13*s);
+    drawCircle(x - 0.10*s + windX, y + 0.35*s, 0.13*s);
 
     colorLeavesHighlight(mode);
-    drawCircle(x - 0.01*s, y + 0.56*s, 0.13*s);
-    drawCircle(x + 0.10*s, y + 0.49*s, 0.10*s);
-    drawCircle(x - 0.08*s, y + 0.38*s, 0.13*s);
-    drawCircle(x + 0.08*s + 0.02*s, y + 0.35*s, 0.13*s);
+    drawCircle(x - 0.01*s + windX, y + 0.56*s, 0.13*s);
+    drawCircle(x + 0.10*s + windX, y + 0.49*s, 0.10*s);
+    drawCircle(x - 0.08*s + windX, y + 0.38*s, 0.13*s);
+    drawCircle(x + 0.08*s + 0.02*s + windX, y + 0.35*s, 0.13*s);
 
     colorBark(mode);
     drawTriangle(x, y + 0.5*s, x - 0.02*s, y, x + 0.02*s, y);
@@ -756,17 +816,22 @@ void drawTree(float x, float y, float s, int mode) {
 }
 
 void drawTree2(float x, float y, float s, int mode) {
+    float windX = 0.0f;
+    if (mode == 1) {
+        windX = 0.002f * sin(windTime + x * 10.0f) + 0.001f * cos(windTime * 1.5f);
+    }
+
     colorLeaves(mode);
-    drawCircle(x - 0.02*s, y + 0.52*s, 0.18*s);
-    drawCircle(x + 0.10*s, y + 0.33*s, 0.15*s);
-    drawCircle(x - 0.12*s, y + 0.36*s, 0.16*s);
-    drawCircle(x - 0.22*s, y + 0.20*s, 0.12*s);
+    drawCircle(x - 0.02*s + windX, y + 0.52*s, 0.18*s);
+    drawCircle(x + 0.10*s + windX, y + 0.33*s, 0.15*s);
+    drawCircle(x - 0.12*s + windX, y + 0.36*s, 0.16*s);
+    drawCircle(x - 0.22*s + windX, y + 0.20*s, 0.12*s);
 
     colorLeavesHighlight(mode);
-    drawCircle(x + 0.02*s, y + 0.56*s, 0.18*s);
-    drawCircle(x + 0.14*s, y + 0.37*s, 0.15*s);
-    drawCircle(x - 0.08*s, y + 0.40*s, 0.16*s);
-    drawCircle(x - 0.18*s, y + 0.24*s, 0.12*s);
+    drawCircle(x + 0.02*s + windX, y + 0.56*s, 0.18*s);
+    drawCircle(x + 0.14*s + windX, y + 0.37*s, 0.15*s);
+    drawCircle(x - 0.08*s + windX, y + 0.40*s, 0.16*s);
+    drawCircle(x - 0.18*s + windX, y + 0.24*s, 0.12*s);
 
     colorBark(mode);
     drawTriangle(x, y + 0.60*s, x - 0.03*s, y, x + 0.03*s, y);
@@ -789,16 +854,14 @@ void drawTrees(int mode) {
 }
 
 
-// ==========================================================
-// WEATHER PARTICLES
-// ==========================================================
+// weather
 void drawWeather(int mode) {
     if (mode == 1) {
         glColor3ub(150, 160, 220);
         glLineWidth(1.0f);
         glBegin(GL_LINES);
         for(int i = 0; i < 200; i++) {
-            glVertex2f(particleX[i],          particleY[i]);
+            glVertex2f(particleX[i], particleY[i]);
             glVertex2f(particleX[i] + 0.015f, particleY[i] - 0.08f);
         }
         glEnd();
@@ -813,19 +876,15 @@ void drawWeather(int mode) {
     }
 }
 
-
-// ==========================================================
-// CORE GLUT FUNCTIONS
-// ==========================================================
 void keyboard(unsigned char key, int x, int y) {
     switch(key) {
-        case '1': mode = 0; autoCycle = false; break; // Manual mode pauses auto-cycle
+        case '1': mode = 0; autoCycle = false; break;
         case '2': mode = 1; autoCycle = false; break;
         case '3': mode = 2; autoCycle = false; break;
         case '4': mode = 3; autoCycle = false; break;
         case '5': mode = 4; autoCycle = false; break;
         case 'c':
-        case 'C': autoCycle = !autoCycle; break; // NEW: Toggle auto cycle on/off
+        case 'C': autoCycle = !autoCycle; break;
     }
     glutPostRedisplay();
 }
@@ -851,12 +910,12 @@ void update(int value) {
     }
 
     fireTime += 0.1f;
+    windTime += 0.04f;
 
-    // NEW: Handle automatic Day -> Evening -> Night cycling
     if (autoCycle) {
         cycleTimer++;
-        if (cycleTimer > 300) { // roughly 5 seconds (300 frames * 16ms)
-            cycleIndex = (cycleIndex + 1) % 3; // Loop between 0, 1, and 2
+        if (cycleTimer > 300) {
+            cycleIndex = (cycleIndex + 1) % 3;
             mode = dayNightCycle[cycleIndex];
             cycleTimer = 0;
         }
@@ -905,8 +964,7 @@ int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_ALPHA);
     glutInitWindowSize(1920, 1080);
-    // Updated title to let the user know 'C' toggles the cycle!
-    glutCreateWindow("Dynamic Camping | 1-5: Manual Mode | C: Toggle Auto Day/Night Cycle");
+    glutCreateWindow("Dynamic Camping Scenario");
 
     init();
     glutDisplayFunc(display);
