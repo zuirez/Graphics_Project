@@ -41,6 +41,9 @@ float fireflyPhase[NUM_FIREFLIES];
 int lightningTimer = 150;
 int flashDuration = 0;
 
+// Wind Turbine Variables
+float turbineAngle = 0.0f;
+float turbineSpeed = 2.0f;
 
 GLubyte clamp(int value) {
     if (value > 255) return 255;
@@ -180,12 +183,10 @@ void circleFunc(float p1, float q1, float r1, int R, int G, int B) {
     glEnd();
 }
 
-// Sun / Moon - Rashed
+// Sun Moon - Rashed
 void drawSunMoon(int mode) {
     if (mode == 0) circleFuncSun(0.88f, 0.88f, 0.10f, 255, 255,   0);
-    // mode = 1 (Monsoon)
     else if (mode == 2) circleFuncSun(0.88f, 0.88f, 0.08f, 220, 230, 255);
-    // mode = 3 (Winter)
     else if (mode == 4) circleFuncSun(0.88f, 0.88f, 0.10f, 255, 94,  0);
 
     if (mode == 2) {
@@ -201,7 +202,6 @@ void drawSunMoon(int mode) {
 
 // Clouds - Rashed
 void drawCloudShapes(int wR, int wG, int wB, int cR, int cG, int cB) {
-    // Cloud 2
     circleFunc(0.03f,  0.75f, 0.04f, wR, wG, wB);
     circleFunc(0.115f, 0.79f, 0.07f, cR, cG, cB);
     circleFunc(0.10f,  0.79f, 0.07f, wR, wG, wB);
@@ -212,7 +212,6 @@ void drawCloudShapes(int wR, int wG, int wB, int cR, int cG, int cB) {
     circleFunc(0.12f,  0.73f, 0.06f, wR, wG, wB);
     circleFunc(0.06f,  0.71f, 0.03f, wR, wG, wB);
 
-    // Cloud 3
     circleFunc(0.66f,  0.80f, 0.03f, wR, wG, wB);
     circleFunc(0.73f,  0.81f, 0.06f, cR, cG, cB);
     circleFunc(0.72f,  0.81f, 0.06f, wR, wG, wB);
@@ -221,7 +220,6 @@ void drawCloudShapes(int wR, int wG, int wB, int cR, int cG, int cB) {
     circleFunc(0.72f,  0.78f, 0.05f, wR, wG, wB);
     circleFunc(0.678f, 0.77f, 0.02f, wR, wG, wB);
 
-    // Cloud 4
     circleFunc(-0.14f,  0.82f, 0.03f, wR, wG, wB);
     circleFunc(-0.07f,  0.84f, 0.06f, cR, cG, cB);
     circleFunc(-0.08f,  0.84f, 0.06f, wR, wG, wB);
@@ -230,7 +228,6 @@ void drawCloudShapes(int wR, int wG, int wB, int cR, int cG, int cB) {
     circleFunc(-0.08f,  0.80f, 0.05f, wR, wG, wB);
     circleFunc(-0.122f, 0.79f, 0.02f, wR, wG, wB);
 
-    // Cloud 5
     circleFunc(-0.57f,  0.88f, 0.08f, cR, cG, cB);
     circleFunc(-0.58f,  0.88f, 0.08f, wR, wG, wB);
     circleFunc(-0.51f,  0.82f, 0.06f, cR, cG, cB);
@@ -279,6 +276,8 @@ void drawClouds(int mode) {
 void drawPlane(float x, float y, int currentMode) {
     glPushMatrix();
     glTranslatef(x, y, 0.0f);
+
+    // --- FIXED SCALING ---
     glScalef(0.35f, 0.35f, 1.0f);
 
     GLubyte bR, bG, bB;
@@ -404,9 +403,56 @@ void drawFlock(float x, float y) {
     drawBird(x + 0.08f,  y - 0.02f,  0.75f, 1.5f);
 }
 
+// Wind Turbines
+void drawTurbine(float x, float y, float scale, int mode) {
+    glPushMatrix();
+    glTranslatef(x, y, 0.0f);
+    glScalef(scale, scale, 1.0f);
+
+    GLubyte pR=200, pG=200, pB=200;
+    GLubyte bR=220, bG=220, bB=220;
+    if (mode == 1) { pR=150; pG=150; pB=150; bR=170; bG=170; bB=170; }
+    else if (mode == 2) { pR=50; pG=50; pB=60; bR=70; bG=70; bB=80; }
+    else if (mode == 3) { pR=220; pG=220; pB=230; bR=240; bG=240; bB=250; }
+    else if (mode == 4) { pR=180; pG=120; pB=80; bR=200; bG=140; bB=100; }
+
+    // Pole
+    glColor3ub(pR, pG, pB);
+    glBegin(GL_POLYGON);
+    glVertex2f(-0.015f, 0.0f);
+    glVertex2f( 0.015f, 0.0f);
+    glVertex2f( 0.008f, 0.4f);
+    glVertex2f(-0.008f, 0.4f);
+    glEnd();
+
+    // Blades
+    glTranslatef(0.0f, 0.4f, 0.0f);
+    glRotatef(turbineAngle, 0.0f, 0.0f, 1.0f);
+
+    glColor3ub(bR, bG, bB);
+    for(int i = 0; i < 3; i++) {
+        glRotatef(120.0f, 0.0f, 0.0f, 1.0f);
+        glBegin(GL_TRIANGLES);
+        glVertex2f(-0.01f, 0.0f);
+        glVertex2f( 0.01f, 0.0f);
+        glVertex2f( 0.0f,  0.25f);
+        glEnd();
+    }
+
+    // Hub
+    circleFunc(0.0f, 0.0f, 0.015f, pR, pG, pB);
+
+    glPopMatrix();
+}
+
+void drawTurbines(int mode) {
+    drawTurbine(-0.75f, 0.15f, 0.70f, mode);
+    drawTurbine(-0.60f, 0.18f, 0.50f, mode);
+    drawTurbine(-0.88f, 0.12f, 0.35f, mode);
+}
+
 // Environments - Nahin
 void drawEnvironment(int mode) {
-    // hills
     colorHill(mode, 0);
     glBegin(GL_POLYGON);
     glVertex2f(-0.3f, 0.0f);
@@ -474,7 +520,6 @@ void drawEnvironment(int mode) {
     glVertex2f(1.0f, 0.0f);
     glEnd();
 
-    // river
     colorRiver(mode);
     glBegin(GL_TRIANGLES);
     glVertex2f(-0.62f, 0.0f);
@@ -482,7 +527,6 @@ void drawEnvironment(int mode) {
     glVertex2f( 0.4f,  0.0f);
     glEnd();
 
-    // field
     colorGround(mode, 2);
     glBegin(GL_POLYGON);
     glVertex2f(0.2f, -0.2f);
@@ -644,17 +688,14 @@ void drawTent(int mode) {
 
 // Tent - Nijhum
 void madeByNijhum(int mode) {
-    // left tent
     drawTent(mode);
 
-    // right tent
     glPushMatrix();
     glTranslatef(-0.60f, 0.05f, 0.0f);
     glScalef(-1.0f, 1.0f, 1.0f);
     drawTent(mode);
     glPopMatrix();
 
-    // log
     colorBark(mode);
     glBegin(GL_POLYGON);
     glVertex2f(-0.4f,   -0.60f);
@@ -690,7 +731,6 @@ void madeByNijhum(int mode) {
     glVertex2f(-0.33f, -0.57f);
     glEnd();
 
-    // stones
     circleFunc(-0.32f, -0.78f, 0.045f, 90, 90, 90);
     circleFunc(-0.29f, -0.765f, 0.013f, 120, 120, 120);
     circleFunc(-0.32f, -0.755f, 0.012f, 130, 130, 130);
@@ -700,7 +740,6 @@ void madeByNijhum(int mode) {
     circleFunc(-0.30f, -0.796f, 0.012f, 120, 120, 120);
     circleFunc(-0.28f, -0.783f, 0.011f, 118, 118, 118);
 
-    // wood
     colorBark(mode);
     glBegin(GL_POLYGON);
     glVertex2f(-0.355f, -0.790f);
@@ -723,7 +762,6 @@ void madeByNijhum(int mode) {
             drawFireGlow(-0.32f, -0.790f);
         }
 
-        // flame
         glPushMatrix();
         glTranslatef(-0.32f, -0.778f, 0.0f);
 
@@ -796,44 +834,20 @@ void drawWatchTower(float x, float y, float s, int mode) {
     float woodR, woodG, woodB;
     float woodDR, woodDG, woodDB;
     if (mode == 0) {
-        woodR=0.45f;
-        woodG=0.28f;
-        woodB=0.14f;
-        woodDR=0.25f;
-        woodDG=0.15f;
-        woodDB=0.08f;
-    }
-    else if (mode == 1) {
-        woodR=0.35f;
-        woodG=0.20f;
-        woodB=0.10f;
-        woodDR=0.18f;
-        woodDG=0.10f;
-        woodDB=0.05f;
-    }
-    else if (mode == 2) {
-        woodR=0.10f;
-        woodG=0.06f;
-        woodB=0.03f;
-        woodDR=0.05f;
-        woodDG=0.03f;
-        woodDB=0.01f;
-    }
-    else if (mode == 3) {
-        woodR=0.55f;
-        woodG=0.50f;
-        woodB=0.45f;
-        woodDR=0.35f;
-        woodDG=0.30f;
-        woodDB=0.28f;
-    }
-    else {
-        woodR=0.55f;
-        woodG=0.30f;
-        woodB=0.10f;
-        woodDR=0.30f;
-        woodDG=0.15f;
-        woodDB=0.05f;
+        woodR=0.45f; woodG=0.28f; woodB=0.14f;
+        woodDR=0.25f; woodDG=0.15f; woodDB=0.08f;
+    } else if (mode == 1) {
+        woodR=0.35f; woodG=0.20f; woodB=0.10f;
+        woodDR=0.18f; woodDG=0.10f; woodDB=0.05f;
+    } else if (mode == 2) {
+        woodR=0.10f; woodG=0.06f; woodB=0.03f;
+        woodDR=0.05f; woodDG=0.03f; woodDB=0.01f;
+    } else if (mode == 3) {
+        woodR=0.55f; woodG=0.50f; woodB=0.45f;
+        woodDR=0.35f; woodDG=0.30f; woodDB=0.28f;
+    } else {
+        woodR=0.55f; woodG=0.30f; woodB=0.10f;
+        woodDR=0.30f; woodDG=0.15f; woodDB=0.05f;
     }
 
     glBegin(GL_QUADS);
@@ -941,15 +955,32 @@ void drawWatchTower(float x, float y, float s, int mode) {
         }
     glEnd();
 
-    // watch tower light blink
     if (mode == 2) {
-        if (sin(fireTime * 2.5f) > 0.8f) {
-            glColor3ub(255, 0, 0);
-            glPointSize(5.0f);
-            glBegin(GL_POINTS);
-            glVertex2f(x, y + 0.40f * s);
-            glEnd();
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        float cx = x;
+        float cy = y + 0.40f * s;
+        float glowRadius = 0.40f * s;
+
+        glBegin(GL_TRIANGLE_FAN);
+
+        glColor4f(1.0f, 0.9f, 0.2f, 0.25f);
+        glVertex2f(cx, cy);
+
+        glColor4f(1.0f, 0.9f, 0.2f, 0.0f);
+        for (int i = 0; i <= 40; i++) {
+            float angle = i * 2.0f * PI / 40.0f;
+            glVertex2f(cx + (glowRadius * cos(angle) / aspect), cy + (glowRadius * sin(angle)));
         }
+        glEnd();
+        glDisable(GL_BLEND);
+
+        glColor3ub(255, 255, 180);
+        glPointSize(6.0f);
+        glBegin(GL_POINTS);
+        glVertex2f(cx, cy);
+        glEnd();
     }
 }
 
@@ -1063,6 +1094,15 @@ void keyboard(unsigned char key, int x, int y) {
         case '3': mode = 2; break;
         case '4': mode = 3; break;
         case '5': mode = 4; break;
+
+        case '+':
+        case '=':
+            turbineSpeed += 0.5f;
+            break;
+        case '-':
+        case '_':
+            turbineSpeed -= 0.5f;
+            break;
     }
     glutPostRedisplay();
 }
@@ -1096,11 +1136,16 @@ void update(int value) {
     fireTime += 0.1f;
     windTime += 0.04f;
 
+    turbineAngle -= turbineSpeed;
+    if (turbineAngle <= -360.0f) turbineAngle += 360.0f;
+    if (turbineAngle >= 360.0f) turbineAngle -= 360.0f;
+
     planeX += 0.003f;
     if (planeX > 1.3f) {
         planeX = -1.3f;
     }
 
+    // Birds fly right to left
     birdTime += 0.15f;
     birdX -= 0.004f;
     if (birdX < -1.5f) {
@@ -1171,17 +1216,26 @@ void display() {
     }
 
     if (mode == 0 || mode == 4) {
-        drawFlock(birdX, 0.45f);
+
+        float t_bird = (1.5f - birdX) / 3.0f;
+
+        float dynamicScale_bird = 0.5f + (t_bird * 2.5f);
+
+        glPushMatrix();
+        glTranslatef(birdX, 0.45f, 0.0f);
+        glScalef(dynamicScale_bird, dynamicScale_bird, 1.0f);
+
+        drawFlock(0.0f, 0.0f);
+
+        glPopMatrix();
     }
 
+    drawTurbines(mode);
     drawEnvironment(mode);
     drawWatchTower(0.3f, -0.2f, 1.0f, mode);
-
     drawTrees(mode);
     madeByNijhum(mode);
-
     drawWeather(mode);
-
     drawFireflies(mode);
 
     glFlush();
